@@ -5,7 +5,7 @@
 using namespace std;
 
 volatile int summ = 0;
-
+//skdjflksdjf
 struct Array {
 	int* array;
 	int lenght;
