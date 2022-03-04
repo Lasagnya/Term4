@@ -31,6 +31,8 @@ int main() {
 	PROCESS_INFORMATION piApp;
 	ZeroMemory(&si, sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
+	si.dwFlags = STARTF_USEFILLATTRIBUTE;
+	si.dwFillAttribute = FOREGROUND_GREEN;
 	if (!CreateProcess(NULL, lpszCommandLine, NULL, NULL, FALSE,
 		CREATE_NEW_CONSOLE, NULL, NULL, &si, &piApp))
 	{
