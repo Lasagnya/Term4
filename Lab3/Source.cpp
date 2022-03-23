@@ -8,6 +8,7 @@ struct Array {
 	char* array;
 	int length;
 	int k;
+	int sum = 0;
 
 	Array(char* arr, int n, int k) {
 		array = arr;
@@ -21,6 +22,15 @@ struct Array {
 		this->k = copy->k;
 	}
 };
+
+DWORD WINAPI summElement(LPVOID value)
+{
+	Array* Arr = (Array*)value;
+	for (int i = 0; i < Arr->k; i++) {
+		Arr->sum += Arr->array[i];
+	}
+	Arr->sum /= Arr->k;
+}
 
 DWORD WINAPI work(LPVOID value)
 {
@@ -38,6 +48,7 @@ DWORD WINAPI work(LPVOID value)
 				Arr->array[j] = temp;
 				ind = true;
 			}
+			Sleep(50);
 		}
 		if (ind) {
 			char temp = Arr->array[Arr->length - count];
@@ -61,4 +72,14 @@ int main() {
 	int k;
 	cin >> k;
 	Array* Arr = new Array(array, n, k);
+	HANDLE hThread;
+	DWORD IDThread;
+	HANDLE hThread2;
+	DWORD IDThread2;
+	hThread = CreateThread(NULL, 0, work, (void*)Arr, 0, &IDThread);
+	if (hThread == NULL)
+		return GetLastError();
+	hThread2 = CreateThread(NULL, 0, summElement, (void*)Arr, 0, &IDThread2);
+	if (hThread2 == NULL)
+		return GetLastError();
 }
