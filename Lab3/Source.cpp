@@ -2,6 +2,7 @@
 #include <process.h>
 #include <iostream>
 #include <ctime>
+#include <algorithm>
 using namespace std;
 
 CRITICAL_SECTION cs;
@@ -9,12 +10,12 @@ HANDLE event1, event2;
 
 
 struct Array {
-	char* array;
+	int* array;
 	int length;
 	int k;
 	int sum = 0;
 
-	Array(char* arr, int n, int k) {
+	Array(int* arr, int n, int k) {
 		array = arr;
 		length = n;
 		this->k = k;
@@ -41,13 +42,14 @@ DWORD WINAPI summElement(LPVOID value)
 	return 0;
 }
 
+bool comp(int i, int j) { return (i < j); }
 
 DWORD WINAPI work(LPVOID value)
 {
 	Array* Arr = (Array*)value;
 //	int s;
 //	cin >> s;
-	int count = 0;
+	/*int count = 0;
 	bool ind = false;
 	for (int i = 0; i < Arr->length; i++) {
 		for (int j = i + 1; j < Arr->length; j++) {
@@ -58,7 +60,7 @@ DWORD WINAPI work(LPVOID value)
 				Arr->array[j] = temp;
 				ind = true;
 			}
-			Sleep(50);
+			Sleep(12);
 		}
 		if (ind) {
 			char temp = Arr->array[Arr->length - count];
@@ -66,7 +68,25 @@ DWORD WINAPI work(LPVOID value)
 			Arr->array[i] = temp;
 			ind = false;
 		}
+	}*/
+
+	sort(Arr->array, Arr->array + Arr->length, comp);
+	int* array = new int[Arr->length];
+	int t = 0;
+	for (int i = 0; i < Arr->length; i++) {
+		if (Arr->array[i] != Arr->array[i + 1] && Arr->array[i] != Arr->array[i - 1]) {
+			array[t] = Arr->array[i];
+			++t;
+		}
 	}
+	for (int i = 0; i < Arr->length; i++) {
+		int count = 0;
+		if (Arr->array[i] == Arr->array[i + 1])
+			for (int j = i; Arr->array[j] == Arr->array[i] && j < Arr->length - 1; j++, t++, count++)
+				array[t] = Arr->array[j];
+		i += count;
+	}
+	Arr->array = array;
 	SetEvent(event1);
 	return 0;
 }
@@ -74,7 +94,8 @@ DWORD WINAPI work(LPVOID value)
 
 int main() {
 	int n = 10;//rand() % 10;
-	char* array = new char[n];
+	cout << "Starting massiv\n";
+	int* array = new int[n];
 	for (int i = 0; i < n; i++) {
 		array[i] = rand() % 10;
 		cout << array[i] << " ";
@@ -87,8 +108,9 @@ int main() {
 	if (event2 == NULL)
 		return GetLastError();
 	InitializeCriticalSection(&cs);
-	int k;
-	cin >> k;
+	int k = 5;
+	cout << "Input k\n";
+//	cin >> k;
 	Array* Arr = new Array(array, n, k);
 	HANDLE hThread;
 	DWORD IDThread;
@@ -100,6 +122,7 @@ int main() {
 	hThread2 = CreateThread(NULL, 0, summElement, (void*)Arr, 0, &IDThread2);
 	if (hThread2 == NULL)
 		return GetLastError();
+	cout << "New massiv\n";
 	WaitForSingleObject(event1, INFINITE);
 	for (int i = 0; i < Arr->length; i++) {
 		cout << Arr->array[i] << " ";
@@ -108,6 +131,7 @@ int main() {
 	SetEvent(event2);
 	Sleep(10);
 	EnterCriticalSection(&cs);
+	cout << "Summ\n";
 	cout << Arr->sum << '\n';
 	LeaveCriticalSection(&cs);
 	DeleteCriticalSection(&cs);
