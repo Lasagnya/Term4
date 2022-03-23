@@ -4,6 +4,10 @@
 #include <ctime>
 using namespace std;
 
+CRITICAL_SECTION cs;
+HANDLE event1, event2;
+
+
 struct Array {
 	char* array;
 	int length;
@@ -23,14 +27,20 @@ struct Array {
 	}
 };
 
+
 DWORD WINAPI summElement(LPVOID value)
 {
+	WaitForSingleObject(event2, INFINITE);
+	EnterCriticalSection(&cs);
 	Array* Arr = (Array*)value;
 	for (int i = 0; i < Arr->k; i++) {
 		Arr->sum += Arr->array[i];
 	}
 	Arr->sum /= Arr->k;
+	LeaveCriticalSection(&cs);
+	return 0;
 }
+
 
 DWORD WINAPI work(LPVOID value)
 {
@@ -57,7 +67,10 @@ DWORD WINAPI work(LPVOID value)
 			ind = false;
 		}
 	}
+	SetEvent(event1);
+	return 0;
 }
+
 
 int main() {
 	int n = 10;//rand() % 10;
@@ -67,8 +80,13 @@ int main() {
 		cout << array[i] << " ";
 	}
 	cout << '\n';
-	CRITICAL_SECTION cs;
-	HANDLE event1, event2;
+	event1 = CreateEvent(NULL, FALSE, FALSE, NULL);
+	if (event1 == NULL)
+		return GetLastError();
+	event2 = CreateEvent(NULL, FALSE, FALSE, NULL);
+	if (event2 == NULL)
+		return GetLastError();
+	InitializeCriticalSection(&cs);
 	int k;
 	cin >> k;
 	Array* Arr = new Array(array, n, k);
@@ -82,4 +100,17 @@ int main() {
 	hThread2 = CreateThread(NULL, 0, summElement, (void*)Arr, 0, &IDThread2);
 	if (hThread2 == NULL)
 		return GetLastError();
+	WaitForSingleObject(event1, INFINITE);
+	for (int i = 0; i < Arr->length; i++) {
+		cout << Arr->array[i] << " ";
+	}
+	cout << '\n';
+	SetEvent(event2);
+	Sleep(10);
+	EnterCriticalSection(&cs);
+	cout << Arr->sum << '\n';
+	LeaveCriticalSection(&cs);
+	DeleteCriticalSection(&cs);
+	CloseHandle(hThread);
+	CloseHandle(hThread2);
 }
