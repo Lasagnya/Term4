@@ -10,12 +10,12 @@ HANDLE event1, event2;
 
 
 struct Array {
-	int* array;
+	char* array;
 	int length;
 	int k;
-	int sum = 0;
+	char sum = 0;
 
-	Array(int* arr, int n, int k) {
+	Array(char* arr, int n, int k) {
 		array = arr;
 		length = n;
 		this->k = k;
@@ -31,8 +31,8 @@ struct Array {
 
 DWORD WINAPI summElement(LPVOID value)
 {
-	WaitForSingleObject(event2, INFINITE);
 	EnterCriticalSection(&cs);
+	WaitForSingleObject(event2, INFINITE);
 	Array* Arr = (Array*)value;
 	for (int i = 0; i < Arr->k; i++) {
 		Arr->sum += Arr->array[i];
@@ -42,49 +42,33 @@ DWORD WINAPI summElement(LPVOID value)
 	return 0;
 }
 
-bool comp(int i, int j) { return (i < j); }
+bool comp(char i, char j) { return (i < j); }
 
 DWORD WINAPI work(LPVOID value)
 {
 	Array* Arr = (Array*)value;
-//	int s;
-//	cin >> s;
-	/*int count = 0;
-	bool ind = false;
-	for (int i = 0; i < Arr->length; i++) {
-		for (int j = i + 1; j < Arr->length; j++) {
-			if (Arr->array[j] == Arr->array[i]) {
-				++count;
-				char temp = Arr->array[Arr->length - count];
-				Arr->array[Arr->length - count] = Arr->array[j];
-				Arr->array[j] = temp;
-				ind = true;
-			}
-			Sleep(12);
-		}
-		if (ind) {
-			char temp = Arr->array[Arr->length - count];
-			Arr->array[Arr->length - count] = Arr->array[i];
-			Arr->array[i] = temp;
-			ind = false;
-		}
-	}*/
-
 	sort(Arr->array, Arr->array + Arr->length, comp);
-	int* array = new int[Arr->length];
+	cout << "\nInput sleep time\n";
+	int s;
+	cin >> s;
+	char* array = new char[Arr->k];
 	int t = 0;
-	for (int i = 0; i < Arr->length; i++) {
+	for (int i = 0; i < Arr->k; i++) {
 		if (Arr->array[i] != Arr->array[i + 1] && Arr->array[i] != Arr->array[i - 1]) {
 			array[t] = Arr->array[i];
 			++t;
+			Sleep(s);
 		}
 	}
-	for (int i = 0; i < Arr->length; i++) {
+	for (int i = 0; i < Arr->k; i++) {
 		int count = 0;
 		if (Arr->array[i] == Arr->array[i + 1])
-			for (int j = i; Arr->array[j] == Arr->array[i] && j < Arr->length - 1; j++, t++, count++)
+			for (int j = i; Arr->array[j] == Arr->array[i] && j < Arr->k; j++, t++, count++)
 				array[t] = Arr->array[j];
+		if (count > 0)
+			count--;
 		i += count;
+		Sleep(s);
 	}
 	Arr->array = array;
 	SetEvent(event1);
@@ -93,12 +77,13 @@ DWORD WINAPI work(LPVOID value)
 
 
 int main() {
-	int n = 10;//rand() % 10;
+	cout << "Input n\n";
+	int n;
+	cin >> n;
 	cout << "Starting massiv\n";
-	int* array = new int[n];
+	char* array = new char[n];
 	for (int i = 0; i < n; i++) {
-		array[i] = rand() % 10;
-		cout << array[i] << " ";
+		cin >> array[i];
 	}
 	cout << '\n';
 	event1 = CreateEvent(NULL, FALSE, FALSE, NULL);
@@ -108,9 +93,9 @@ int main() {
 	if (event2 == NULL)
 		return GetLastError();
 	InitializeCriticalSection(&cs);
-	int k = 5;
+	int k;
 	cout << "Input k\n";
-//	cin >> k;
+	cin >> k;
 	Array* Arr = new Array(array, n, k);
 	HANDLE hThread;
 	DWORD IDThread;
@@ -122,14 +107,13 @@ int main() {
 	hThread2 = CreateThread(NULL, 0, summElement, (void*)Arr, 0, &IDThread2);
 	if (hThread2 == NULL)
 		return GetLastError();
-	cout << "New massiv\n";
 	WaitForSingleObject(event1, INFINITE);
-	for (int i = 0; i < Arr->length; i++) {
+	cout << "New massiv\n";
+	for (int i = 0; i < Arr->k; i++) {
 		cout << Arr->array[i] << " ";
 	}
 	cout << '\n';
 	SetEvent(event2);
-	Sleep(10);
 	EnterCriticalSection(&cs);
 	cout << "Summ\n";
 	cout << Arr->sum << '\n';
