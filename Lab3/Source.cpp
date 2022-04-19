@@ -47,11 +47,11 @@ bool comp(char i, char j) { return (i < j); }
 DWORD WINAPI work(LPVOID value)
 {
 	Array* Arr = (Array*)value;
-	sort(Arr->array, Arr->array + Arr->length, comp);
-	cout << "\nInput sleep time\n";
+	sort(Arr->array, Arr->array + Arr->k, comp);
+	cout << "Input sleep time\n";
 	int s;
 	cin >> s;
-	char* array = new char[Arr->k];
+	char* array = new char[Arr->length];
 	int t = 0;
 	for (int i = 0; i < Arr->k; i++) {
 		if (Arr->array[i] != Arr->array[i + 1] && Arr->array[i] != Arr->array[i - 1]) {
@@ -70,6 +70,9 @@ DWORD WINAPI work(LPVOID value)
 		i += count;
 		Sleep(s);
 	}
+	for (int i = Arr->k; i < Arr->length; i++) {
+		array[i] = Arr->array[i];
+	}
 	Arr->array = array;
 	SetEvent(event1);
 	return 0;
@@ -85,7 +88,6 @@ int main() {
 	for (int i = 0; i < n; i++) {
 		cin >> array[i];
 	}
-	cout << '\n';
 	event1 = CreateEvent(NULL, FALSE, FALSE, NULL);
 	if (event1 == NULL)
 		return GetLastError();
@@ -119,6 +121,10 @@ int main() {
 	cout << Arr->sum << '\n';
 	LeaveCriticalSection(&cs);
 	DeleteCriticalSection(&cs);
+	cout << "Massiv from k\n";
+	for (int i = Arr->k; i < Arr->length; i++) {
+		cout << Arr->array[i] << " ";
+	}
 	CloseHandle(hThread);
 	CloseHandle(hThread2);
 }
