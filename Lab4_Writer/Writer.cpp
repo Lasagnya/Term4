@@ -20,6 +20,7 @@ int main(int argc, char* argv[])
 	hMutex = CreateMutex(NULL, FALSE, "MutexW");
 	if (hMutex == NULL)
 		return GetLastError();
+
 	int n = atoi(argv[0]);
 	cout << "Writer #" << n << endl;
 	int m_count = atoi(argv[1]);

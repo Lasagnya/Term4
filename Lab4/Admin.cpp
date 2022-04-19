@@ -7,14 +7,20 @@ using namespace std;
 
 int main() {
 	char* lpszCommandLine = new char[255];
-	HANDLE A, B, endWriter, endReader;
+	HANDLE A, A1, B, B1, endWriter, endReader;
 //	HANDLE hMutex;
-	HANDLE hSemaphore;
+//	HANDLE hSemaphore;
 	A = CreateEvent(NULL, FALSE, FALSE, "A");
 	if (A == NULL)
 		return GetLastError();
 	B = CreateEvent(NULL, FALSE, FALSE, "B");
 	if (B == NULL)
+		return GetLastError();
+	A1 = CreateEvent(NULL, FALSE, FALSE, "A1");
+	if (A1 == NULL)
+		return GetLastError();
+	B1 = CreateEvent(NULL, FALSE, FALSE, "B1");
+	if (B1 == NULL)
 		return GetLastError();
 	endWriter = CreateEvent(NULL, FALSE, FALSE, "endW");
 	if (endWriter == NULL)
@@ -23,7 +29,7 @@ int main() {
 	if (endReader == NULL)
 		return GetLastError();
 //	hMutex = CreateMutex(NULL, FALSE, "Mutex");
-	hSemaphore = CreateSemaphore(NULL, 0, 10, NULL);
+//	hSemaphore = CreateSemaphore(NULL, 0, 10, NULL);
 	char lpszAppNameR[] = "Reader.exe";
 	char lpszAppNameW[] = "Writer.exe";
 	int n, m_count;
@@ -64,4 +70,34 @@ int main() {
 		}
 		Readers[i] = piApp.hProcess;
 	}
+	HANDLE mass[] = { A1, B1 };
+	for (int i = 0; i < n * m_count; i++)
+	{
+		int ind = WaitForMultipleObjects(2, mass, FALSE, INFINITE) - WAIT_OBJECT_0;
+		if (ind == 0)
+		{
+			cout << "Get message A from Reader\n";
+			//ResetEvent(A1);
+		}
+		if (ind == 1)
+		{
+			cout << "Get message B from Reader\n";
+			//ResetEvent(B1);
+		}
+	}
+	cout << "All processes have shut down\n";
+	SetEvent(endWriter);
+	SetEvent(endReader);
+	CloseHandle(A);
+	CloseHandle(B);
+	CloseHandle(A1);
+	CloseHandle(B1);
+	CloseHandle(endWriter);
+	CloseHandle(endReader);
+	for (int i = 0; i < n; i++)
+	{
+		CloseHandle(Writers[i]);
+		CloseHandle(Readers[i]);
+	}
+	return 0;
 }

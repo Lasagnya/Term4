@@ -3,7 +3,7 @@
 #include <conio.h>
 using namespace std;
 
-HANDLE A, B, endReader;
+HANDLE A, A1, B, B1, endReader;
 HANDLE hSemaphore;
 
 int main(int argc, char* argv[])
@@ -14,12 +14,19 @@ int main(int argc, char* argv[])
 	B = CreateEvent(NULL, FALSE, FALSE, "B");
 	if (B == NULL)
 		return GetLastError();
+	A1 = CreateEvent(NULL, FALSE, FALSE, "A1");
+	if (A1 == NULL)
+		return GetLastError();
+	B1 = CreateEvent(NULL, FALSE, FALSE, "B1");
+	if (B1 == NULL)
+		return GetLastError();
 	endReader = CreateEvent(NULL, FALSE, FALSE, "endR");
 	if (endReader == NULL)
 		return GetLastError();
 	hSemaphore = CreateSemaphore(NULL, 2, 2, "SemaphoreR");
 	if (hSemaphore == NULL)
 		return GetLastError();
+
 	int n = atoi(argv[0]);
 	int m_count = atoi(argv[1]);
 	cout << "Reader #" << n << "\n";
@@ -31,15 +38,15 @@ int main(int argc, char* argv[])
 		if (ind == 0)
 		{
 			cout << "Get message A from Writer\n";
-			ResetEvent(A);
+			//ResetEvent(A);
 		}
 		else if (ind == 1)
 		{
 			cout << "Get message B from Writer\n";
-			ResetEvent(B);
+			//ResetEvent(B);
 		}
 	}
-	cout << "Завершение работы..." << endl;
+	cout << "Completion of work\n";
 	ReleaseSemaphore(hSemaphore, 1, NULL);
 	CloseHandle(A);
 	CloseHandle(B);
