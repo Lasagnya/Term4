@@ -32,18 +32,18 @@ int main(int argc, char* argv[])
 	cout << "Reader #" << n << "\n";
 	WaitForSingleObject(hSemaphore, INFINITE);
 	HANDLE mass[] = { A, B };
-	for (int i = 0; i < 2 * m_count; i++)
+	for (int i = 0; i < m_count; i++)
 	{
 		int ind = WaitForMultipleObjects(2, mass, FALSE, INFINITE) - WAIT_OBJECT_0;
 		if (ind == 0)
 		{
 			cout << "Get message A from Writer\n";
-			//ResetEvent(A);
+			SetEvent(A1);
 		}
 		else if (ind == 1)
 		{
 			cout << "Get message B from Writer\n";
-			//ResetEvent(B);
+			SetEvent(B1);
 		}
 	}
 	cout << "Completion of work\n";

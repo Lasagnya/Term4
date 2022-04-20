@@ -6,10 +6,7 @@
 using namespace std;
 
 int main() {
-	char* lpszCommandLine = new char[255];
 	HANDLE A, A1, B, B1, endWriter, endReader;
-//	HANDLE hMutex;
-//	HANDLE hSemaphore;
 	A = CreateEvent(NULL, FALSE, FALSE, "A");
 	if (A == NULL)
 		return GetLastError();
@@ -28,20 +25,19 @@ int main() {
 	endReader = CreateEvent(NULL, FALSE, FALSE, "endR");
 	if (endReader == NULL)
 		return GetLastError();
-//	hMutex = CreateMutex(NULL, FALSE, "Mutex");
-//	hSemaphore = CreateSemaphore(NULL, 0, 10, NULL);
-	char lpszAppNameR[] = "Reader.exe";
-	char lpszAppNameW[] = "Writer.exe";
+	char lpszAppNameW[] = "Lab4_Writer.exe";
+	char lpszAppNameR[] = "Lab4_Reader.exe";
 	int n, m_count;
 	cout << "Number of process\n";
 	cin >> n;
-	cout << "Number of messages\n" << endl;
+	cout << "Number of messages\n";
 	cin >> m_count;
 	HANDLE* Readers = new HANDLE[n];
 	HANDLE* Writers = new HANDLE[n];
-	PROCESS_INFORMATION piApp;
 	STARTUPINFO si;
+	PROCESS_INFORMATION piApp;
 	ZeroMemory(&si, sizeof(STARTUPINFO));
+	si.cb = sizeof(STARTUPINFO);
 	for (int i = 0; i < n; i++) {
 		char* ch = new char[1];
 		char* lpCommLine = new char[1];
@@ -77,15 +73,14 @@ int main() {
 		if (ind == 0)
 		{
 			cout << "Get message A from Reader\n";
-			//ResetEvent(A1);
 		}
 		if (ind == 1)
 		{
 			cout << "Get message B from Reader\n";
-			//ResetEvent(B1);
 		}
 	}
-	cout << "All processes have shut down\n";
+	cout << "Input any key to close processes\n";
+	_getch();
 	SetEvent(endWriter);
 	SetEvent(endReader);
 	CloseHandle(A);
@@ -94,6 +89,7 @@ int main() {
 	CloseHandle(B1);
 	CloseHandle(endWriter);
 	CloseHandle(endReader);
+	cout << "All processes have shut down\n";
 	for (int i = 0; i < n; i++)
 	{
 		CloseHandle(Writers[i]);
