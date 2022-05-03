@@ -1,10 +1,13 @@
 #include <windows.h>
 #include <conio.h>
+#include <iostream>
+using namespace std;
+
 int main(int argc, char* argv[])
 {
 	HANDLE hWritePipe, hReadPipe;
-	HANDLE hEnableRead;
-	//hEnableRead = OpenEvent(EVENT_ALL_ACCESS, FALSE, lpszEnableRead);
+	HANDLE hRead2;
+	hRead2 = OpenEvent(EVENT_ALL_ACCESS, FALSE, "Read2");
 	hWritePipe = (HANDLE)atoi(argv[1]);
 	hReadPipe = (HANDLE)atoi(argv[2]);
 	int n, N, M;
@@ -18,9 +21,13 @@ int main(int argc, char* argv[])
 	}
 	ReadFile(hReadPipe, &N, sizeof(N), &dwBytesRead, NULL);
 	ReadFile(hReadPipe, &M, sizeof(M), &dwBytesRead, NULL);
+	cout << "n: " << n << "\n";
+	cout << "N: " << N << "\n";
+	cout << "M: " << M << "\n";
 	DWORD dwBytesWritten;
 	for (int i = N; i <= M; i++) {
-		int a = rand();
+		long a = rand();
+		cout << a << " ";
 		if (!WriteFile(hWritePipe, &a, sizeof(a), &dwBytesWritten, NULL))
 		{
 			_cputs("Write to file failed.\n");
@@ -29,4 +36,11 @@ int main(int argc, char* argv[])
 			return GetLastError();
 		}
 	}
+	SetEvent(hRead2);
+	_cputs("Press any key to exit.\n");
+	_getch();
+	CloseHandle(hWritePipe);
+	CloseHandle(hReadPipe);
+	CloseHandle(hRead2);
+	return 0;
 }

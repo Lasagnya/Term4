@@ -6,12 +6,12 @@ using namespace std;
 int main()
 {
 	char lpszComLine[80];
-	HANDLE hEnableRead;
+	HANDLE hRead2;
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 	HANDLE hWritePipe, hReadPipe;
 	SECURITY_ATTRIBUTES sa;
-	//hEnableRead = CreateEvent(NULL, FALSE, FALSE, lpszEnableRead);
+	hRead2 = CreateEvent(NULL, FALSE, FALSE, "Read2");
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 	sa.lpSecurityDescriptor = NULL;
 	sa.bInheritHandle = TRUE;
@@ -54,6 +54,7 @@ int main()
 	WriteFile(hWritePipe, &N, sizeof(N), &dwBytesWritten, NULL);
 	WriteFile(hWritePipe, &M, sizeof(M), &dwBytesWritten, NULL);
 	DWORD dwBytesRead;
+	WaitForSingleObject(hRead2, INFINITE);
 	for (int i = N; i <= M; i++) {
 		if (!ReadFile(hReadPipe, &mass[i], sizeof(mass[i]), &dwBytesRead, NULL))
 		{
@@ -62,5 +63,12 @@ int main()
 			_getch();
 			return GetLastError();
 		}
+		cout << mass[i] << " ";
 	}
+	CloseHandle(hReadPipe);
+	CloseHandle(hWritePipe);
+	CloseHandle(hRead2);
+	_cputs("Press any key to exit.\n");
+	_getch();
+	return 0;
 }
