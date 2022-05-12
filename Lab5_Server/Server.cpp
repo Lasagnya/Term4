@@ -55,7 +55,7 @@ int main()
 	WriteFile(hWritePipe, &M, sizeof(M), &dwBytesWritten, NULL);
 	DWORD dwBytesRead;
 	WaitForSingleObject(hRead2, INFINITE);
-	for (int i = N; i <= M; i++) {
+	for (int i = 0; i < n; i++) {
 		if (!ReadFile(hReadPipe, &mass[i], sizeof(mass[i]), &dwBytesRead, NULL))
 		{
 			_cputs("Read from the pipe failed.\n");
@@ -68,7 +68,10 @@ int main()
 	CloseHandle(hReadPipe);
 	CloseHandle(hWritePipe);
 	CloseHandle(hRead2);
-	_cputs("Press any key to exit.\n");
-	_getch();
-	return 0;
+	_cputs("\nPress \"q\" to exit.\n");
+	while (1) {
+		char ch = _getch();
+		if (ch == 81 || ch == 113)
+			return 0;
+	}
 }

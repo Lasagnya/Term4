@@ -25,8 +25,8 @@ int main(int argc, char* argv[])
 	cout << "N: " << N << "\n";
 	cout << "M: " << M << "\n";
 	DWORD dwBytesWritten;
-	for (int i = N; i <= M; i++) {
-		long a = rand();
+	for (int i = 0; i < n; i++) {
+		long a = N + rand() % (M - N);
 		cout << a << " ";
 		if (!WriteFile(hWritePipe, &a, sizeof(a), &dwBytesWritten, NULL))
 		{
@@ -37,10 +37,13 @@ int main(int argc, char* argv[])
 		}
 	}
 	SetEvent(hRead2);
-	_cputs("Press any key to exit.\n");
-	_getch();
 	CloseHandle(hWritePipe);
 	CloseHandle(hReadPipe);
 	CloseHandle(hRead2);
-	return 0;
+	_cputs("\nPress \"q\" to exit.\n");
+	while (1) {
+		char ch = _getch();
+		if (ch == 81 || ch == 113)
+			return 0;
+	}
 }
