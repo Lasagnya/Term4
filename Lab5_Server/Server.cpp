@@ -33,8 +33,7 @@ int main()
 	ZeroMemory(&si, sizeof(STARTUPINFO));
 	si.cb = sizeof(STARTUPINFO);
 	wsprintf(lpszComLine, "Lab5_Client.exe %d %d", (int)hWritePipe, (int)hReadPipe);
-	if (!CreateProcess(NULL, lpszComLine, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi
-	))
+	if (!CreateProcess(NULL, lpszComLine, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
 	{
 		_cputs("Create process failed.\n");
 		_cputs("Press any key to finish.\n");
