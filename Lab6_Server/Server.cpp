@@ -6,7 +6,6 @@ using namespace std;
 int main()
 {
 	HANDLE hNamedPipe;
-	HANDLE hWritePipe, hReadPipe;
 	SECURITY_ATTRIBUTES sa; // атрибуты защиты
 	SECURITY_DESCRIPTOR sd; // дескриптор защиты
 	sa.nLength = sizeof(sa);
@@ -56,18 +55,18 @@ int main()
 	cin >> M;
 	long* mass = new long[n];
 	DWORD dwBytesWritten;
-	if (!WriteFile(hWritePipe, &n, sizeof(n), &dwBytesWritten, NULL))
+	if (!WriteFile(hNamedPipe, &n, sizeof(n), &dwBytesWritten, NULL))
 	{
 		_cputs("Write to file failed.\n");
 		_cputs("Press any key to finish.\n");
 		_getch();
 		return GetLastError();
 	}
-	WriteFile(hWritePipe, &N, sizeof(N), &dwBytesWritten, NULL);
-	WriteFile(hWritePipe, &M, sizeof(M), &dwBytesWritten, NULL);
+	WriteFile(hNamedPipe, &N, sizeof(N), &dwBytesWritten, NULL);
+	WriteFile(hNamedPipe, &M, sizeof(M), &dwBytesWritten, NULL);
 	DWORD dwBytesRead;
 	for (int i = 0; i < n; i++) {
-		if (!ReadFile(hReadPipe, &mass[i], sizeof(mass[i]), &dwBytesRead, NULL))
+		if (!ReadFile(hNamedPipe, &mass[i], sizeof(mass[i]), &dwBytesRead, NULL))
 		{
 			_cputs("Read from the pipe failed.\n");
 			_cputs("Press any key to finish.\n");
@@ -77,8 +76,6 @@ int main()
 		cout << mass[i] << " ";
 	}
 	CloseHandle(hNamedPipe);
-	CloseHandle(hReadPipe);
-	CloseHandle(hWritePipe);
 	_cputs("\nPress \"q\" to exit.\n");
 	while (1) {
 		char ch = _getch();
